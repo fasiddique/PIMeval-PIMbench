@@ -84,6 +84,7 @@ public:
   bool pimEQ(PimObjId src1, PimObjId src2, PimObjId dest);
   bool pimMin(PimObjId src1, PimObjId src2, PimObjId dest);
   bool pimMax(PimObjId src1, PimObjId src2, PimObjId dest);
+  bool pimExp(PimObjId src, PimObjId dest, int64_t expValue);
   bool pimAdd(PimObjId src, PimObjId dest, uint64_t scalarValue);
   bool pimSub(PimObjId src, PimObjId dest, uint64_t scalarValue);
   bool pimMul(PimObjId src, PimObjId dest, uint64_t scalarValue);

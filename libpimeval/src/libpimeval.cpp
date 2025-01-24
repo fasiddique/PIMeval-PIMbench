@@ -289,6 +289,14 @@ pimMax(PimObjId src1, PimObjId src2, PimObjId dest)
   return ok ? PIM_OK : PIM_ERROR;
 }
 
+//! @brief  PIM Exp
+PimStatus
+pimExp(PimObjId src, PimObjId dst, int64_t expValue)
+{
+  bool ok = pimSim::get()->pimExp(src, dst, expValue);
+  return ok ? PIM_OK : PIM_ERROR;
+}
+
 PimStatus pimAddScalar(PimObjId src, PimObjId dest, uint64_t scalarValue)
 {
   bool ok = pimSim::get()->pimAdd(src, dest, scalarValue);

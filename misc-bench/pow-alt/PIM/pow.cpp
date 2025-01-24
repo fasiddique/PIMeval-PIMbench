@@ -100,21 +100,9 @@ void pow(uint64_t vectorLength, uint64_t exponent, const std::vector<int> src, s
   assert(status == PIM_OK);
   
   dst.resize(vectorLength);
-  
-  for (uint64_t i = 0; i < (exponent/2 - 1); i++) {
-    status = pimMul(srcObj, dstObj, dstObj);
-    assert(status == PIM_OK);
-    status = pimCopyDeviceToHost(dstObj, (void *) dst.data());
-    assert(status == PIM_OK);
-  }
 
-  status = pimMul(dstObj, dstObj, dstObj);
+  status = pimExp(srcObj, dstObj, dstObj);
   assert(status == PIM_OK);
-
-  if (exponent % 2) {
-    status = pimMul(srcObj, dstObj, dstObj);
-    assert(status == PIM_OK);
-  }
 
   dst.resize(vectorLength);
   status = pimCopyDeviceToHost(dstObj, (void *) dst.data());
