@@ -291,9 +291,9 @@ pimMax(PimObjId src1, PimObjId src2, PimObjId dest)
 
 //! @brief  PIM Exp
 PimStatus
-pimExp(PimObjId src, PimObjId dst, int64_t expValue)
+pimPow(PimObjId src, PimObjId dest, int64_t expValue)
 {
-  bool ok = pimSim::get()->pimExp(src, dst, expValue);
+  bool ok = pimSim::get()->pimPow(src, dest, expValue);
   return ok ? PIM_OK : PIM_ERROR;
 }
 
