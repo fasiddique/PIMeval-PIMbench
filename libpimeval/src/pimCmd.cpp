@@ -402,7 +402,6 @@ pimCmdFunc1::computeRegion(unsigned index)
   PimDataType dataType = objSrc.getDataType();
   unsigned bitsPerElementSrc = objSrc.getBitsPerElement();
   const pimRegion& srcRegion = objSrc.getRegions()[index];
-
   // perform the computation
   uint64_t elemIdxBegin = srcRegion.getElemIdxBegin();
   unsigned numElementsInRegion = srcRegion.getNumElemInRegion();
