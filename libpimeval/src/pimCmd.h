@@ -29,7 +29,7 @@ enum class PimCmdEnum {
   COPY_D2D,
   // Functional 1-operand
   ABS,
-  EXP,
+  POW,
   POPCOUNT,
   SHIFT_BITS_R,
   SHIFT_BITS_L,
@@ -243,7 +243,7 @@ private:
         break;
     case PimCmdEnum::SHIFT_BITS_R: result >>= static_cast<uint64_t>(scalarValue); break;
     case PimCmdEnum::SHIFT_BITS_L: result <<= static_cast<uint64_t>(scalarValue); break;
-    case PimCmdEnum::EXP: result = (std::pow(operand, scalarValue)); break;
+    case PimCmdEnum::POW: result = (std::pow(operand, scalarValue)); break;
     case PimCmdEnum::ABS:
     {
         if (std::is_signed<T>::value) {

@@ -34,7 +34,7 @@ pimCmd::getName(PimCmdEnum cmdType, const std::string& suffix)
     { PimCmdEnum::COPY_H2D, "copy_h2d" },
     { PimCmdEnum::COPY_D2H, "copy_d2h" },
     { PimCmdEnum::COPY_D2D, "copy_d2d" },
-    { PimCmdEnum::EXP, "exp" },
+    { PimCmdEnum::POW, "exp" },
     { PimCmdEnum::ABS, "abs" },
     { PimCmdEnum::POPCOUNT, "popcount" },
     { PimCmdEnum::SHIFT_BITS_R, "shift_bits_r" },
@@ -442,8 +442,7 @@ pimCmdFunc1::updateStats() const
   PimDataType dataType = objSrc.getDataType();
   bool isVLayout = objSrc.isVLayout();
 
-  
-  pimeval::perfEnergy mPerfEnergy = pimSim::get()->getPerfEnergyModel()->getPerfEnergyForFunc1(m_cmdType, objSrc);
+  pimeval::perfEnergy mPerfEnergy = pimSim::get()->getPerfEnergyModel()->getPerfEnergyForFunc1(m_cmdType, objSrc, m_scalarValue);
   pimSim::get()->getStatsMgr()->recordCmd(getName(dataType, isVLayout), mPerfEnergy);
   return true;
 }
