@@ -42,7 +42,7 @@ pimPerfEnergyFulcrum::getPerfEnergyForFunc1(PimCmdEnum cmdType, const pimObjInfo
     case PimCmdEnum::POW:
     {
       numberOfALUOperationPerElement *= std::ceil(scalarValue * 1.0 / 2);
-      msRuntime = m_tR + m_tW + ((m_tR + maxElementsPerRegion * m_fulcrumAluLatency * numberOfALUOperationPerElement) * numPass);
+      msRuntime = m_tR + m_tW + ((maxElementsPerRegion * m_fulcrumAluLatency * numberOfALUOperationPerElement) * numPass);
       double energyArithmetic = ((maxElementsPerRegion - 1) * 2 *  m_fulcrumShiftEnergy) + ((maxElementsPerRegion) * m_fulcrumALUArithmeticEnergy * 4);
       double energyLogical = ((maxElementsPerRegion - 1) * 2 *  m_fulcrumShiftEnergy) + ((maxElementsPerRegion) * m_fulcrumALULogicalEnergy * 8);
       mjEnergy = ((energyArithmetic + energyLogical) + m_eAP) * numCores * numPass;

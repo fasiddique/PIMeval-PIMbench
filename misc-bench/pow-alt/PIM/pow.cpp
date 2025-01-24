@@ -101,7 +101,7 @@ void pow(uint64_t vectorLength, uint64_t exponent, const std::vector<int> src, s
   
   dst.resize(vectorLength);
 
-  status = pimPow(srcObj, dstObj, dstObj);
+  status = pimPow(srcObj, dstObj, exponent);
   assert(status == PIM_OK);
 
   dst.resize(vectorLength);
