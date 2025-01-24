@@ -138,6 +138,7 @@ PimStatus pimLT(PimObjId src1, PimObjId src2, PimObjId dest);
 PimStatus pimEQ(PimObjId src1, PimObjId src2, PimObjId dest);
 PimStatus pimMin(PimObjId src1, PimObjId src2, PimObjId dest);
 PimStatus pimMax(PimObjId src1, PimObjId src2, PimObjId dest);
+PimStatus pimExp(PimObjId src, PimObjId dest, int64_t expValue);
 PimStatus pimAddScalar(PimObjId src, PimObjId dest, uint64_t scalarValue);
 PimStatus pimSubScalar(PimObjId src, PimObjId dest, uint64_t scalarValue);
 PimStatus pimMulScalar(PimObjId src, PimObjId dest, uint64_t scalarValue);
