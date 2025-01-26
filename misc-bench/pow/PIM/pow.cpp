@@ -96,15 +96,15 @@ void pow(uint64_t vectorLength, uint64_t exponent, const std::vector<int> src, s
   PimStatus status = pimCopyHostToDevice((void *) src.data(), srcObj);
   assert(status == PIM_OK);
 
-  status = pimCopyHostToDevice((void *) src.data(), dstObj);
+  status = pimBroadcastInt(dstObj, 1);
   assert(status == PIM_OK);
   
   dst.resize(vectorLength);
   
-  for (uint64_t i = 0; i < (exponent/2 - 1); i++) {
+  std::cout << "Log of exponent: " << std::floor(std::log2(exponent * 1.0)) << std::endl;
+
+  for (uint64_t i = 0; i < std::floor(std::log2(exponent * 1.0)); i++) {
     status = pimMul(srcObj, dstObj, dstObj);
-    assert(status == PIM_OK);
-    status = pimCopyDeviceToHost(dstObj, (void *) dst.data());
     assert(status == PIM_OK);
   }
 

@@ -21,6 +21,8 @@
 
 using namespace std;
 
+#define MAX_NUMBER 1024
+
 void getVector(uint64_t vectorLength, std::vector<int> &srcVector)
 {
   srand((unsigned)time(NULL));
@@ -28,7 +30,7 @@ void getVector(uint64_t vectorLength, std::vector<int> &srcVector)
 #pragma omp parallel for
   for (uint64_t i = 0; i < vectorLength; ++i)
   {
-    srcVector[i] = (rand() % (i + 1) + 1);
+    srcVector[i] = rand() % MAX_NUMBER;
   }
 }
 
