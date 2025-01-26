@@ -27,7 +27,7 @@ pimPerfEnergyBankLevel::getPerfEnergyForFunc1(PimCmdEnum cmdType, const pimObjIn
     case PimCmdEnum::ABS:
     case PimCmdEnum::POW:
     {
-      numberOfOperationPerElement *= std::ceil(scalarValue * 1.0 / 2); // 4 shifts, 4 ands, 3 add/sub, 1 mul
+      numberOfOperationPerElement *= std::ceil(std::log2(scalarValue * 1.0)); // 4 shifts, 4 ands, 3 add/sub, 1 mul
       unsigned numGDLItr = maxElementsPerRegion * bitsPerElement / m_GDLWidth;
       double totalGDLOverhead = m_tGDL * numGDLItr; // read can be pipelined and write cannot be pipelined
       // Refer to fulcrum documentation

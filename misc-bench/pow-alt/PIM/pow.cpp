@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
     return 1;
   }
 
-  std::printf("Performing power of %" PRIu64 " on %" PRIu64 "data points\n", params.n, vectorLength);
+  std::printf("Performing power of %" PRIu64 " on %" PRIu64 " data points\n", params.n, vectorLength);
 
   if (!createDevice(params.configFile))
   {
