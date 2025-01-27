@@ -21,7 +21,7 @@
 
 using namespace std;
 
-#define MAX_NUMBER 1024
+#define MAX_NUMBER 128
 
 void getVector(uint64_t vectorLength, std::vector<int> &srcVector)
 {
