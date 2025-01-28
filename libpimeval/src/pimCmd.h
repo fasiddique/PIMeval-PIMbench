@@ -196,7 +196,9 @@ class pimCmdFunc1 : public pimCmd
 {
 public:
   pimCmdFunc1(PimCmdEnum cmdType, PimObjId src, PimObjId dest, uint64_t scalarValue = 0)
-    : pimCmd(cmdType), m_src(src), m_dest(dest), m_scalarValue(scalarValue) {}
+    : pimCmd(cmdType), m_src(src), m_dest(dest), m_scalarValue(scalarValue) {
+      m_numOp = (cmdType == PimCmdEnum::POW) ? std::ceil(std::log2(scalarValue * 1.0)) : 1;
+    }
   virtual ~pimCmdFunc1() {}
   virtual bool execute() override;
   virtual bool sanityCheck() const override;
@@ -206,6 +208,9 @@ protected:
   PimObjId m_src;
   PimObjId m_dest;
   uint64_t m_scalarValue;
+  // The default number of operations is 1. 
+  // For commands like 'pow', this should be updated to represent the variable number of operations executed.
+  uint64_t m_numOp;
 private:
   template<typename T>
   inline bool computeResult(T operand, PimCmdEnum cmdType, T scalarValue, T& result, int bitsPerElementSrc) {
