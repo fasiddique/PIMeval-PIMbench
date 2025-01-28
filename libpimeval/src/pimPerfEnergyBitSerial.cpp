@@ -91,8 +91,8 @@ pimPerfEnergyBitSerial::getPerfEnergyForFunc1(PimCmdEnum cmdType, const pimObjIn
     case PIM_DEVICE_SIMDRAM:
     {
       pimeval::perfEnergy perfEnergyBS = getPerfEnergyBitSerial(m_simTarget, cmdType, dataType, bitsPerElement, numPass, obj);
-      msRuntime += perfEnergyBS.m_msRuntime * std::ceil(std::log2(scalarValue * 1.0));
-      mjEnergy += perfEnergyBS.m_mjEnergy * std::ceil(std::log2(scalarValue * 1.0));
+      msRuntime += perfEnergyBS.m_msRuntime * scalarValue;
+      mjEnergy += perfEnergyBS.m_mjEnergy * scalarValue;
       break;
     }
     default:

@@ -11,7 +11,7 @@
 
 //! @brief  Perf energy model of bank-level PIM for func1
 pimeval::perfEnergy
-pimPerfEnergyBankLevel::getPerfEnergyForFunc1(PimCmdEnum cmdType, const pimObjInfo& obj, int64_t scalarValue) const
+pimPerfEnergyBankLevel::getPerfEnergyForFunc1(PimCmdEnum cmdType, const pimObjInfo& obj, int64_t numOp) const
 {
   double msRuntime = 0.0;
   double mjEnergy = 0.0;
@@ -27,7 +27,7 @@ pimPerfEnergyBankLevel::getPerfEnergyForFunc1(PimCmdEnum cmdType, const pimObjIn
     case PimCmdEnum::ABS:
     case PimCmdEnum::POW:
     {
-      numberOfOperationPerElement *= std::ceil(std::log2(scalarValue * 1.0)); // 4 shifts, 4 ands, 3 add/sub, 1 mul
+      numberOfOperationPerElement *= numOp; // 4 shifts, 4 ands, 3 add/sub, 1 mul
       unsigned numGDLItr = maxElementsPerRegion * bitsPerElement / m_GDLWidth;
       double totalGDLOverhead = m_tGDL * numGDLItr; // read can be pipelined and write cannot be pipelined
       // Refer to fulcrum documentation
