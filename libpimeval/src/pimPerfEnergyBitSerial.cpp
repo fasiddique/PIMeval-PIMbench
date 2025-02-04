@@ -76,7 +76,7 @@ pimPerfEnergyBitSerial::getPerfEnergyBitSerial(PimDeviceEnum deviceType, PimCmdE
 
 //! @brief  Perf energy model of bit-serial PIM for func1
 pimeval::perfEnergy
-pimPerfEnergyBitSerial::getPerfEnergyForFunc1(PimCmdEnum cmdType, const pimObjInfo& obj, int64_t scalarValue) const
+pimPerfEnergyBitSerial::getPerfEnergyForFunc1(PimCmdEnum cmdType, const pimObjInfo& obj, int64_t numOp) const
 {
   double msRuntime = 0.0;
   double mjEnergy = 0.0;
@@ -91,8 +91,8 @@ pimPerfEnergyBitSerial::getPerfEnergyForFunc1(PimCmdEnum cmdType, const pimObjIn
     case PIM_DEVICE_SIMDRAM:
     {
       pimeval::perfEnergy perfEnergyBS = getPerfEnergyBitSerial(m_simTarget, cmdType, dataType, bitsPerElement, numPass, obj);
-      msRuntime += perfEnergyBS.m_msRuntime * scalarValue;
-      mjEnergy += perfEnergyBS.m_mjEnergy * scalarValue;
+      msRuntime += perfEnergyBS.m_msRuntime * numOp;
+      mjEnergy += perfEnergyBS.m_mjEnergy * numOp;
       break;
     }
     default:
