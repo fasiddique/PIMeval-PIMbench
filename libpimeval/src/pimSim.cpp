@@ -645,7 +645,7 @@ pimSim::pimMax(PimObjId src1, PimObjId src2, PimObjId dest)
   return m_device->executeCmd(std::move(cmd));
 }
 
-bool pimSim::pimPow(PimObjId src, PimObjId dest, int64_t expValue)
+bool pimSim::pimPow(PimObjId src, PimObjId dest, uint64_t expValue)
 {
   pimPerfMon perfMon("pimExponent");
   if (!isValidDevice()) { return false; }
