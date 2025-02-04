@@ -25,7 +25,7 @@
 typedef struct Params
 {
   uint64_t dataSize;
-  uint64_t n;
+  int64_t n;
   char *configFile;
   char *inputFile;
   bool shouldVerify;
@@ -63,10 +63,10 @@ struct Params getInputParams(int argc, char **argv)
       exit(0);
       break;
     case 'l':
-      p.dataSize = strtoull(optarg, NULL, 0);
+      p.dataSize = std::strtoull(optarg, NULL, 0);
       break;
     case 'n':
-      p.n = strtoull(optarg, NULL, 0);
+      p.n = std::strtoll(optarg, NULL, 0);
       break;
     case 'c':
       p.configFile = optarg;
@@ -86,7 +86,7 @@ struct Params getInputParams(int argc, char **argv)
   return p;
 }
 
-void pow(uint64_t vectorLength, uint64_t exponent, const std::vector<int> src, std::vector<int> &dst)
+void pow(uint64_t vectorLength, int64_t exponent, const std::vector<int> src, std::vector<int> &dst)
 {
   PimObjId srcObj = pimAlloc(PIM_ALLOC_AUTO, vectorLength, PIM_INT32);
   assert(srcObj != -1);
@@ -101,9 +101,9 @@ void pow(uint64_t vectorLength, uint64_t exponent, const std::vector<int> src, s
   
   dst.resize(vectorLength);
   
-  std::cout << "Log of exponent: " << std::floor(std::log2(exponent * 1.0)) << std::endl;
+  std::cout << "Log of exponent: " << std::floor(std::log2(std::abs(exponent) * 1.0)) << std::endl;
 
-  for (uint64_t i = 0; i < std::floor(std::log2(exponent * 1.0)); i++) {
+  for (uint64_t i = 0; i < std::floor(std::log2(std::abs(exponent) * 1.0)); i++) {
     status = pimMul(srcObj, dstObj, dstObj);
     assert(status == PIM_OK);
   }
@@ -113,6 +113,13 @@ void pow(uint64_t vectorLength, uint64_t exponent, const std::vector<int> src, s
 
   if (exponent % 2) {
     status = pimMul(srcObj, dstObj, dstObj);
+    assert(status == PIM_OK);
+  }
+
+  if (exponent < 0) {
+    status = pimBroadcastInt(srcObj, 1);
+    assert(status == PIM_OK);
+    status = pimDiv(srcObj, dstObj, dstObj);
     assert(status == PIM_OK);
   }
 
