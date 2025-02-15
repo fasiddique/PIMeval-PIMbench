@@ -11,7 +11,7 @@
 
 //! @brief  Perf energy model of bank-level PIM for func1
 pimeval::perfEnergy
-pimPerfEnergyBankLevel::getPerfEnergyForFunc1(PimCmdEnum cmdType, const pimObjInfo& obj, int64_t numOp) const
+pimPerfEnergyBankLevel::getPerfEnergyForFunc1(PimCmdEnum cmdType, const pimObjInfo& obj) const
 {
   double msRuntime = 0.0;
   double mjEnergy = 0.0;
@@ -25,17 +25,6 @@ pimPerfEnergyBankLevel::getPerfEnergyForFunc1(PimCmdEnum cmdType, const pimObjIn
   {
     case PimCmdEnum::POPCOUNT:
     case PimCmdEnum::ABS:
-    case PimCmdEnum::POW:
-    {
-      numberOfOperationPerElement *= numOp; // 4 shifts, 4 ands, 3 add/sub, 1 mul
-      unsigned numGDLItr = maxElementsPerRegion * bitsPerElement / m_GDLWidth;
-      double totalGDLOverhead = m_tGDL * numGDLItr; // read can be pipelined and write cannot be pipelined
-      // Refer to fulcrum documentation
-      msRuntime = m_tR + m_tW + totalGDLOverhead + ((maxElementsPerRegion * m_blimpCoreLatency * numberOfOperationPerElement) * numPass);
-      mjEnergy = (m_eAP * 2 + (m_eGDL * 2 + (maxElementsPerRegion * m_blimpLogicalEnergy * numberOfOperationPerElement))) * numCores * numPass;
-      mjEnergy += m_pBChip * m_numChipsPerRank * m_numRanks * msRuntime;
-      break;
-    }
     case PimCmdEnum::ADD_SCALAR:
     case PimCmdEnum::SUB_SCALAR:
     case PimCmdEnum::MUL_SCALAR:
