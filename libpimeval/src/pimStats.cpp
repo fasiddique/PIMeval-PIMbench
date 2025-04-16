@@ -122,7 +122,7 @@ void
 pimStatsMgr::showCmdStats() const
 {
   std::printf("PIM Command Stats:\n");
-  std::printf(" %44s : %10s %14s %14s %14s %7s %7s %7s\n", "PIM-CMD", "CNT", "Runtime(ms)", "Energy(mJ)", "GOPS/W", "%R", "%W", "%L");
+  std::printf(" %44s : %10s %14s %14s %14s %14s %14s %14s\n", "PIM-CMD", "CNT", "Runtime(ms)", "Energy(mJ)", "GOPS/W", "%R", "%W", "%L");
   int totalCmd = 0;
   double totalMsRuntime = 0.0;
   double totalMjEnergy = 0.0;
@@ -137,7 +137,7 @@ pimStatsMgr::showCmdStats() const
     double percentCompute = cmdRuntime == 0.0 ? 0.0 : (it.second.second.m_msCompute * 100 / cmdRuntime);
     double cmdEnergy = it.second.second.m_mjEnergy;
     double perfWatt = cmdEnergy == 0.0 ? 0.0 : (it.second.second.m_totalOp * 1.0 / cmdEnergy * 1e-6);
-    std::printf(" %44s : %10d %14f %14f %14f %7.2f %7.2f %7.2f\n", it.first.c_str(), it.second.first, it.second.second.m_msRuntime, it.second.second.m_mjEnergy, perfWatt, percentRead, percentWrite, percentCompute);
+    std::printf(" %44s : %10d %14f %14f %14f %14f %14f %14f\n", it.first.c_str(), it.second.first, it.second.second.m_msRuntime, it.second.second.m_mjEnergy, perfWatt, percentRead, percentWrite, percentCompute);
     totalCmd += it.second.first;
     totalMsRuntime += it.second.second.m_msRuntime;
     totalMjEnergy += it.second.second.m_mjEnergy;
@@ -146,7 +146,7 @@ pimStatsMgr::showCmdStats() const
     totalMsCompute += it.second.first * percentCompute;
     totalOp += it.second.second.m_totalOp;
   }
-  std::printf(" %44s : %10d %14f %14f %14f %7.2f %7.2f %7.2f\n", "TOTAL ---------", totalCmd, totalMsRuntime, totalMjEnergy, (totalOp * 1.0 / totalMjEnergy * 1e-6), (totalMsRead / totalCmd), (totalMsWrite / totalCmd), (totalMsCompute / totalCmd) );
+  std::printf(" %44s : %10d %14f %14f %14f %14f %14f %14f\n", "TOTAL ---------", totalCmd, totalMsRuntime, totalMjEnergy, (totalOp * 1.0 / totalMjEnergy * 1e-6), (totalMsRead / totalCmd), (totalMsWrite / totalCmd), (totalMsCompute / totalCmd) );
   // analyze micro-ops
   int numR = 0;
   int numW = 0;
@@ -187,15 +187,33 @@ pimStatsMgr::resetStats()
 void
 pimStatsMgr::recordCmd(const std::string& cmdName, pimeval::perfEnergy mPerfEnergy)
 {
+  std::string prefix = "scaled_add.int32.h";
   auto& item = m_cmdPerf[cmdName];
   item.first++;
-  item.second.m_msRuntime += mPerfEnergy.m_msRuntime;
-  m_curApiMsEstRuntime += mPerfEnergy.m_msRuntime;
-  item.second.m_mjEnergy += mPerfEnergy.m_mjEnergy;
-  item.second.m_msRead += mPerfEnergy.m_msRead;
-  item.second.m_msWrite += mPerfEnergy.m_msWrite;
-  item.second.m_msCompute += mPerfEnergy.m_msCompute;
-  item.second.m_totalOp += mPerfEnergy.m_totalOp;
+  if (cmdName == prefix) {
+    if (item.first > 1 && pimUtils::pimDeviceEnumToStr(pimSim::get()->getSimTarget()) == "PIM_DEVICE_FULCRUM") {
+      mPerfEnergy.m_msRead = 0;
+      mPerfEnergy.m_msWrite = 0;
+    } 
+    // else {
+    //   std::cout << "Itr: " << item.first << "\tRead: " << mPerfEnergy.m_msRead << "\twrite: " << mPerfEnergy.m_msWrite << std::endl;
+    // }
+    item.second.m_mjEnergy += mPerfEnergy.m_mjEnergy;
+    item.second.m_msRead += mPerfEnergy.m_msRead;
+    item.second.m_msWrite += mPerfEnergy.m_msWrite;
+    item.second.m_msCompute += mPerfEnergy.m_msCompute;
+    item.second.m_totalOp += mPerfEnergy.m_totalOp;
+    item.second.m_msRuntime += mPerfEnergy.m_msRead + mPerfEnergy.m_msWrite + mPerfEnergy.m_msCompute;
+    m_curApiMsEstRuntime += item.second.m_msRuntime;
+  } else {
+    item.second.m_msRuntime += mPerfEnergy.m_msRuntime;
+    m_curApiMsEstRuntime += mPerfEnergy.m_msRuntime;
+    item.second.m_mjEnergy += mPerfEnergy.m_mjEnergy;
+    item.second.m_msRead += mPerfEnergy.m_msRead;
+    item.second.m_msWrite += mPerfEnergy.m_msWrite;
+    item.second.m_msCompute += mPerfEnergy.m_msCompute;
+    item.second.m_totalOp += mPerfEnergy.m_totalOp;
+  }
 }
 
 //! @brief  Record estimated runtime and energy of data copy
