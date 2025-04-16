@@ -52,8 +52,8 @@ pimPerfEnergyFulcrum::getPerfEnergyForFunc1(PimCmdEnum cmdType, const pimObjInfo
     case PimCmdEnum::POPCOUNT:
     {
       double msPopCount = (m_fulcrumAddLatency * 11 +  m_fulcrumMulLatency); // 4 shifts, 4 ands, 3 add/sub, 1 mul
-      msRead = m_tR;
-      msWrite = m_tW;
+      msRead = 0;
+      msWrite = 0;
       msALU = ((maxElementsPerRegion * msPopCount * numberOfALUOperationPerElement) * (numPass - 1)) + (minElementPerRegion * msPopCount * numberOfALUOperationPerElement);
       msRuntime = msRead + msWrite + msALU;
       double energyArithmetic = (((maxElementsPerRegion - 1) * 2 *  m_fulcrumShiftEnergy * numberOfALUOperationPerElement) + (maxElementsPerRegion * m_fulcrumMulEnergy * numberOfALUOperationPerElement)) * (numPass - 1);
@@ -213,7 +213,7 @@ pimPerfEnergyFulcrum::getPerfEnergyForFunc2(PimCmdEnum cmdType, const pimObjInfo
     case PimCmdEnum::COND_BROADCAST: // read from bool and dest, write to dest
     {
       msRead = 2 * m_tR * numPass;
-      msWrite = m_tW * numPass;
+      msWrite = 0;
       msALU = (maxElementsPerRegion * numberOfALUOperationPerElement * m_fulcrumAddLatency * (numPass - 1)) +  (minElementPerRegion * numberOfALUOperationPerElement * m_fulcrumAddLatency);
       msRuntime = msRead + msWrite + msALU;
       mjEnergy = numCoresUsed * (numPass - 1) * ((m_eAP * 3) + ((maxElementsPerRegion - 1) * 3 *  m_fulcrumShiftEnergy) + (maxElementsPerRegion * m_fulcrumAddEnergy * numberOfALUOperationPerElement));
@@ -259,7 +259,7 @@ pimPerfEnergyFulcrum::getPerfEnergyForReduction(PimCmdEnum cmdType, const pimObj
     // TODO: This needs to be flexible
     double aggregateMs = static_cast<double>(obj.getNumCoresUsed()) / 2300000;
     
-    msRead = m_tR;
+    msRead = 0;
     msWrite = 0;
     msCompute = aggregateMs + (maxElementsPerRegion * m_fulcrumAddLatency * numberOfOperationPerElement * (numPass  - 1)) + (minElementPerRegion * m_fulcrumAddLatency * numberOfOperationPerElement);
     msRuntime = msRead + msWrite + msCompute;
