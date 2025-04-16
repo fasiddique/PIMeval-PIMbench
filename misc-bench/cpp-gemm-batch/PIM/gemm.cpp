@@ -1,4 +1,4 @@
-// Test: C++ version of matrix matrix multiplication with batched matrix vector multiplication
+// Test: C++ version of matrix matrix multiplication
 // Copyright (c) 2024 University of Virginia
 // This file is licensed under the MIT License.
 // See the LICENSE file in the root of this repository for more details.
@@ -86,6 +86,7 @@ struct Params getInputParams(int argc, char **argv)
 
 void gemvBatched(uint64_t row, uint64_t col, std::vector<std::vector<int>> &srcVector, std::vector<std::vector<int>> &srcMatrix, std::vector<int> &dst)
 {
+  unsigned bitsPerElement = sizeof(int) * 8;
   PimObjId srcObj1 = pimAlloc(PIM_ALLOC_AUTO, row, PIM_INT32);
   if (srcObj1 == -1)
   {
@@ -213,8 +214,8 @@ void gemm(uint64_t row, uint64_t colA, uint64_t colB, std::vector<std::vector<in
   vector<std::vector<int>> srcMatrixAT(colA, std::vector<int>(row, 0)), srcMatrixBT(colB, std::vector<int>(colA, 0));
 
   // TODO: Do we actually need to transpose matrices
-  transposeMatrix(row, colA, srcMatrixA, srcMatrixAT);
-  transposeMatrix(colA, colB, srcMatrixB, srcMatrixBT);
+  //transposeMatrix(row, colA, srcMatrixA, srcMatrixAT);
+  //transposeMatrix(colA, colB, srcMatrixB, srcMatrixBT);
 
   PimDeviceProperties deviceProp;
   PimStatus status = pimGetDeviceProperties(&deviceProp);
@@ -230,7 +231,8 @@ void gemm(uint64_t row, uint64_t colA, uint64_t colB, std::vector<std::vector<in
   uint64_t batchSize = std::min(colB, (uint64_t)std::ceil(totalAvailableBitsPerItr * 1.0 / totalBitsRequired));
 
   // Concatenate matrices. Needs to be done once
-  std::vector<std::vector<int>> batchedSrcMatA;
+  std::vector<std::vector<int>> batchedSrcMatA(colA, std::vector<int>(row * batchSize, 0));
+/*#pragma omp parallel for
   for (uint64_t i = 0; i < colA; ++i)
   {
     std::vector<int> temp;
@@ -242,16 +244,17 @@ void gemm(uint64_t row, uint64_t colA, uint64_t colB, std::vector<std::vector<in
     }
     batchedSrcMatA.push_back(temp);
   }
-
-  std::cout << "Done concatenating A." << std::endl;
+*/
+  // std::cout << "Done concatenating A." << std::endl;
 
   for (uint64_t i = 0; i < colB; i += batchSize)
   {
     uint64_t currBatchSize = std::min(batchSize, colB - i);
 
-    std::cout << "Starting Gemv for batch size: " << currBatchSize << std::endl;
+    // std::cout << "Starting Gemv for batch size: " << currBatchSize << std::endl;
 
-    std::vector<std::vector<int>> batchedSrcMatB(colA, std::vector<int>(row * batchSize));
+    std::vector<std::vector<int>> batchedSrcMatB(colA, std::vector<int>(row * batchSize, 0));
+   /* #pragma omp parallel for
     for (uint64_t j = 0; j < colA; ++j)
     {
       for (uint64_t k = 0; k < currBatchSize; ++k) {
@@ -263,11 +266,11 @@ void gemm(uint64_t row, uint64_t colA, uint64_t colB, std::vector<std::vector<in
         }
       }
     }
-
-    std::cout << "Done concatenating B." << std::endl;
+*/
+    // std::cout << "Done concatenating B." << std::endl;
     std::vector<int> tempDst(row * currBatchSize, 0);
     gemvBatched(row*currBatchSize, colA, batchedSrcMatB, batchedSrcMatA, tempDst);
-    std::cout << "Done Running GEMV." << std::endl;
+    // std::cout << "Done Running GEMV." << std::endl;
 
     for (uint64_t j = 0; j < currBatchSize; ++j)
     {
@@ -315,8 +318,8 @@ int main(int argc, char *argv[])
   std::cout << "Running GEMM on PIM for matrix of row: " << params.row << " column: " << params.columnA << " and matrix of row: " << params.columnA << " column: " << params.columnB << std::endl;
 
   std::vector<int> srcVector, resultVector;
-  std::vector<std::vector<int>> srcMatrixA, srcMatrixB, dstMatrix;
-  if (params.inputFile == nullptr)
+  std::vector<std::vector<int>> srcMatrixA(params.row, std::vector<int>(params.columnA, 0)), srcMatrixB(params.columnA, std::vector<int>(params.columnB, 0)), dstMatrix;
+  /*if (params.inputFile == nullptr)
   {
     getMatrix(params.row, params.columnA, 0, srcMatrixA);
     getMatrix(params.columnA, params.columnB, 0, srcMatrixB);
@@ -325,7 +328,7 @@ int main(int argc, char *argv[])
   {
     std::cout << "Reading from input file is not implemented yet." << std::endl;
     return 1;
-  }
+  }*/
 
   if (!createDevice(params.configFile))
     return 1;
