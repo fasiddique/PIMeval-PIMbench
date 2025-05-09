@@ -7,6 +7,7 @@
 #include <vector>
 #include <getopt.h>
 #include <stdint.h>
+#include <math.h>
 #include <unordered_map>
 
 #if defined(_OPENMP)
@@ -139,18 +140,6 @@ void copyDataPoints(const std::vector<std::vector<int>> &dataPoints, std::vector
   }
 }
 
-void copyCentroid(std::vector<int64_t> &currCentroid, std::vector<PimObjId> &pimObjectList)
-{
-  for (uint32_t i = 0; i < pimObjectList.size(); i++)
-  {
-    PimStatus status = pimBroadcastInt(pimObjectList[i], currCentroid[i]);
-    if (status != PIM_OK)
-    {
-      std::cout << "Abort" << std::endl;
-      return;
-    }
-  }
-}
 
 void runKmeans(uint64_t numOfPoints, int dimension, int k, int iteration, const std::vector<std::vector<int>> &dataPoints, std::vector<std::vector<int64_t>> &centroids)
 {
@@ -158,10 +147,8 @@ void runKmeans(uint64_t numOfPoints, int dimension, int k, int iteration, const 
   allocatePimObject(numOfPoints, dimension, dataPointObjectList, -1);
   copyDataPoints(dataPoints, dataPointObjectList);
 
-  std::vector<PimObjId> centroidObjectList(dimension);
   std::vector<PimObjId> resultObjectList(dimension);
 
-  allocatePimObject(numOfPoints, dimension, centroidObjectList, dataPointObjectList[0]);
   allocatePimObject(numOfPoints, dimension, resultObjectList, dataPointObjectList[0]);
   // this object stores the minimum distance
   PimObjId tempObj = pimAllocAssociated(resultObjectList[0], PIM_INT32);
@@ -184,12 +171,10 @@ void runKmeans(uint64_t numOfPoints, int dimension, int k, int iteration, const 
 
     for (int i = 0; i < k; ++i)
     {
-      copyCentroid(centroids[i], centroidObjectList);
-
       // for each centroid calculate manhattan distance. Not using euclidean distance to avoid multiplication.
       for (int idx = 0; idx < dimension; ++idx)
       {
-        PimStatus status = pimSub(dataPointObjectList[idx], centroidObjectList[idx], resultObjectList[idx]);
+        PimStatus status = pimSubScalar(dataPointObjectList[idx], resultObjectList[idx], centroids[i][idx]);
         if (status != PIM_OK)
         {
           std::cout << "Abort" << std::endl;
@@ -219,7 +204,7 @@ void runKmeans(uint64_t numOfPoints, int dimension, int k, int iteration, const 
       if (i == 0)
       {
         // this can be replaced with device to device api
-        PimStatus status = pimCopyHostToDevice((void *)distMat[i].data(), tempObj);
+        PimStatus status = pimCopyObjectToObject(resultObjectList[0], tempObj);
         if (status != PIM_OK)
         {
           std::cout << "Abort" << std::endl;
@@ -236,7 +221,6 @@ void runKmeans(uint64_t numOfPoints, int dimension, int k, int iteration, const 
       }
     }
 
-    std::vector<int> clusterPointCount(k, 0);
     for (int i = 0; i < k; i++)
     {
       PimStatus status = pimCopyHostToDevice((void *)distMat[i].data(), resultObjectList[0]);
@@ -259,6 +243,8 @@ void runKmeans(uint64_t numOfPoints, int dimension, int k, int iteration, const 
         return;
       }
 
+      std::cout << "total neighbors of " << i << " is:\t" << totalNeighbors << std::endl;
+
       for (uint32_t b = 0; b < dataPointObjectList.size(); ++b)
       {
         if (totalNeighbors) {
@@ -268,6 +254,23 @@ void runKmeans(uint64_t numOfPoints, int dimension, int k, int iteration, const 
             std::cout << "Abort" << std::endl;
             return;
           }
+
+          // Copy masked data to host (optional for debug)
+    // std::vector<int> maskedData(numOfPoints);
+    // status = pimCopyDeviceToHost(resultObjectList[1], maskedData.data());
+    // if (status != PIM_OK)
+    // {
+    //   std::cout << "Abort" << std::endl;
+    //   return;
+    // }
+
+    // // (Debug) Count non-zeros in maskedData manually
+    // int count = 0;
+    // for (int v : maskedData)
+    //   if (v != 0) ++count;
+    // std::cout << "Non-zeros in maskedData[" << b << "] for centroid " << i << ": " << count << std::endl;
+
+
           status = pimRedSum(resultObjectList[1], static_cast<void*>(&centroids[i][b]));
           if (status != PIM_OK)
           {
@@ -289,11 +292,6 @@ void runKmeans(uint64_t numOfPoints, int dimension, int k, int iteration, const 
   for (uint32_t i = 0; i < dataPointObjectList.size(); ++i)
   {
     pimFree(dataPointObjectList[i]);
-  }
-
-  for (uint32_t i = 0; i < centroidObjectList.size(); ++i)
-  {
-    pimFree(centroidObjectList[i]);
   }
 }
 
